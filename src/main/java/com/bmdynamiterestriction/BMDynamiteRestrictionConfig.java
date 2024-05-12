@@ -6,7 +6,7 @@ import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.Range;
 
-@ConfigGroup("example")
+@ConfigGroup("bmdynamiterestriction")
 public interface BMDynamiteRestrictionConfig extends Config
 {
 	// Chat Messages
