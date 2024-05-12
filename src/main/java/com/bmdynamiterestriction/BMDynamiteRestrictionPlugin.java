@@ -2,6 +2,8 @@ package com.bmdynamiterestriction;
 
 import com.google.inject.Provides;
 import javax.inject.Inject;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
@@ -35,15 +37,31 @@ public class BMDynamiteRestrictionPlugin extends Plugin
 	private static final int HARD_ROCK_ID_2 = 28580;
 	private static final int UNNOTED_DYNAMITE_ID = 13573;
 
+	private boolean properLogged = false;
 	private boolean hadDynamite = false;
 	private boolean hasDynamite = false;
-	private boolean atBank = false;
+	private boolean inBank = false;
 
 	private ItemContainer previousInventory = null;
 
 	private static final String CHISEL_OPTION = "Excavate";
-	private static final String NO_DYNAMITE_MSG = "You don't have any dynamite with which to load the cavity.";
-	private static final String REPLENISH_DYNAMITE_MSG = "You now have dynamite to chisel Hard Rock once more.";
+	private static final String NO_DYNAMITE_MSG = "That was the last of your dynamite! You can no longer load cavities.";
+	private static final String REPLENISH_DYNAMITE_MSG = "You have dynamite and can load chiseled cavities once more.";
+
+	@Subscribe
+	protected void onGameStateChanged(GameStateChanged state) throws Exception {
+		if (state.getGameState() == GameState.LOGGED_IN)
+		{
+			Timer logTimer = new Timer();
+			logTimer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					properLogged = true; // Prevent a chat notification from being sent if they just logged in
+					logTimer.cancel();
+				}
+			}, 3000);
+		}
+	}
 
 	@Subscribe
 	public void onGameTick(GameTick event)
@@ -61,28 +79,24 @@ public class BMDynamiteRestrictionPlugin extends Plugin
 
 			clientThread.invoke(() -> {
 				hadDynamite = previousInventory.contains(UNNOTED_DYNAMITE_ID);
-
 				hasDynamite = previousInventory.contains(UNNOTED_DYNAMITE_ID);
 			});
 
-			if (!prevDynamite && hasDynamite)
+			if (!prevDynamite && hasDynamite && isPlayerAtBankChest() && properLogged)
 			{
 				if (hasReplenishedDynamiteMessagesEnabled())
 				{
 					client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", REPLENISH_DYNAMITE_MSG, null);
 				}
 			}
-			else if (prevDynamite && !hasDynamite && !atBank)
+			else if (prevDynamite && !hasDynamite && !inBank && properLogged)
 			{
 				if (hasOutOfDynamiteMessagesEnabled())
 				{
 					client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", NO_DYNAMITE_MSG, null);
 				}
 
-				if (config.soundfx())
-				{
-					playOutOfDynamiteEffect();
-				}
+				playOutOfDynamiteEffect();
 			}
 		}
 	}
@@ -123,7 +137,11 @@ public class BMDynamiteRestrictionPlugin extends Plugin
 
 		if (changedContainer != null && playerBank != null)
 		{
-			atBank = changedContainer == playerBank;
+			inBank = changedContainer == playerBank;
+		}
+		else if (playerBank == null)
+		{
+			inBank = false;
 		}
 
 		if (changedContainer != null && playerInventory != null)
@@ -168,6 +186,19 @@ public class BMDynamiteRestrictionPlugin extends Plugin
 
 		return playerLocationX >= 1465 && playerLocationX <= 1515 &&
 			   playerLocationY >= 3840 && playerLocationY <= 3890;
+	}
+
+	private boolean isPlayerAtBankChest()
+	{
+		LocalPoint playerLocation = client.getLocalPlayer().getLocalLocation();
+
+		int playerLocationX = WorldPoint.fromLocalInstance(client, playerLocation).getX();
+		int playerLocationY = WorldPoint.fromLocalInstance(client, playerLocation).getY();
+
+		return (playerLocationX == 1502 && playerLocationY == 3870) ||
+			   (playerLocationX == 1477 && playerLocationY == 3874) ||
+			   (playerLocationX == 1478 && playerLocationY == 3856) ||
+			   (playerLocationX == 1499 && playerLocationY == 3857);
 	}
 
 	@Provides
