@@ -1,9 +1,10 @@
-package com.bmdynamiterestriction;
+package com.test;
 
+import com.bmdynamiterestriction.BMDynamiteRestrictionPlugin;
 import net.runelite.client.RuneLite;
 import net.runelite.client.externalplugins.ExternalPluginManager;
 
-public class BMDynamiteRestrictionPlugin
+public class BMDynamiteRestrictionTest
 {
 	public static void main(String[] args) throws Exception
 	{
