@@ -1,4 +1,4 @@
-# Blast Mine Dynamite Restriction
+# ![Dynamite](icon.png) Blast Mine Dynamite Restriction
 An OSRS plugin that disallows (deprioritizes) chiseling Hard Rock in the Blast Mine without unnoted dynamite in the inventory.
 
 # Configuration
@@ -6,7 +6,7 @@ An OSRS plugin that disallows (deprioritizes) chiseling Hard Rock in the Blast M
 Toggles the types of chat messages you receive depending on dynamite availability (default All Messages).
 
 **All Messages**
-- You receive all of the following chat messages.
+- You receive all the following chat messages.
 
 **Out Of Dynamite Only**
 - You only receive a chat message notifying you when you run out of dynamite.
