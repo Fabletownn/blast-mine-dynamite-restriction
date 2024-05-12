@@ -1,4 +1,4 @@
-# ![Dynamite](icon.png) Blast Mine Dynamite Restriction
+# <img src="https://i.imgur.com/Gk5qAVo.png" width="32" height="32">  Blast Mine Dynamite Restriction
 An OSRS plugin that disallows (deprioritizes) chiseling Hard Rock in the Blast Mine without unnoted dynamite in the inventory.
 
 # Configuration
